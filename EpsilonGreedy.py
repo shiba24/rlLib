@@ -1,35 +1,31 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import random
+from matplotlib import pyplot as plt
+
  
-#------------------------------------------------------------------------------
-# DEFINITION
-#------------------------------------------------------------------------------
-class BernoulliArm():
+class BernoulliArm(object):
     def __init__(self, p):
         self.p = p
  
     def draw(self):
-        if random.random() > self.p:
+        if np.random.rand() > self.p:
             return 0.0
         else:
             return 1.0
- 
-class EpsilonGreedy():
+
+
+class EpsilonGreedy(object):
     def __init__(self, epsilon, counts, values):
         self.epsilon = epsilon
         self.counts = counts
         self.values = values
-        return
  
     def initialize(self, n_arms):
         self.counts = np.zeros(n_arms)
         self.values = np.zeros(n_arms)
-        return
  
     def select_arm(self):
-        if random.random() > self.epsilon:
+        if np.random.rand() > self.epsilon:
             #return highest arm
             return np.argmax(self.values)
         else:
@@ -43,6 +39,7 @@ class EpsilonGreedy():
         new_value = ((n-1) / float(n)) * value + (1 / float(n)) * reward
         self.values[chosen_arm] = new_value
         return
+
  
 def test_algorithm(algo, arms, num_sims, horizon):
     chosen_arms = np.zeros(num_sims * horizon)
@@ -76,27 +73,22 @@ def test_algorithm(algo, arms, num_sims, horizon):
  
     return [sim_nums, times, chosen_arms, rewards, cumulative_rewards]
  
- 
- 
-#------------------------------------------------------------------------------
-# MAIN 
-#------------------------------------------------------------------------------
-means = np.array([0.1, 0.1, 0.1, 0.1, 0.9])
-n_arms = len(means)
-random.shuffle(means)
- 
-arms = map(lambda (x): BernoulliArm(x), means)
- 
-for epsilon in [0.1, 0.2, 0.3, 0.4, 0.5]:
-    algo = EpsilonGreedy(epsilon, [], [])
-    algo.initialize(n_arms)
-    results = test_algorithm(algo, arms, 5000, 250)
-    
- 
-    df = pd.DataFrame({"times": results[1], "rewards": results[3]})
-    grouped = df["rewards"].groupby(df["times"])
- 
-    plt.plot(grouped.mean(), label="epsilon="+str(epsilon))
- 
-plt.legend(loc="best")
-plt.show()
+
+if __name__ == "__main__":
+    means = np.array([0.1, 0.1, 0.1, 0.1, 0.9])
+    n_arms = len(means)
+    means = np.random.permutation(means)
+    arms = map(lambda x:BernoulliArm(x), means)
+     
+    for epsilon in [0.1, 0.2, 0.3, 0.4, 0.5]:
+        algo = EpsilonGreedy(epsilon, [], [])
+        algo.initialize(n_arms)
+        results = test_algorithm(algo, arms, 5000, 250)
+             
+        df = pd.DataFrame({"times": results[1], "rewards": results[3]})
+        grouped = df["rewards"].groupby(df["times"])
+     
+        plt.plot(grouped.mean(), label="epsilon="+str(epsilon))
+     
+    plt.legend(loc="best")
+    plt.show()
