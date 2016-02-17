@@ -59,7 +59,7 @@ class Agent(Environment):
             self.position[0] -= 1
 
 
-    def takeAction(self, epsilon):
+    def takeAction(self, epsilon, gamma):
         if np.random.rand(1) < epsilon:
             action_index = np.random.randint(len(self.actionlist))
         else:
@@ -71,7 +71,7 @@ class Agent(Environment):
         self.memory_pos = np.c_[self.memory_pos, self.position]
         self.memory_act = np.append(self.memory_act, action_index)
         self.actionlist[action_index]()
-        self.updateQ()
+        self.updateQ(gamma)
         self.endcheck()
 
 
@@ -79,8 +79,10 @@ class Agent(Environment):
         self.q_field = np.ones([self.q_fieldsize, self.q_fieldsize, len(self.actionlist)]) * 0.5
 
 
-    def updateQ(self):
-        diff = self.field[self.memory_pos[-1][0], self.memory_pos[-1][1]] - self.q_field[self.memory_pos[-2][0], self.memory_pos[-2][1], self.memory_act[-1]]
+    def updateQ(self, gamma):
+        reward = self.field[self.memory_pos[-1][0], self.memory_pos[-1][1]]
+        target = reward + gamma * np.max(self.q_field[self.memory_pos[-1][0], self.memory_pos[-1][1], :])
+        diff = target - self.q_field[self.memory_pos[-2][0], self.memory_pos[-2][1], self.memory_act[-1]]
         self.q_field[self.memory_pos[-2][0], self.memory_pos[-2][1],
                      self.memory_act[-1]] += self.stepsizeparameter * diff
 
@@ -109,7 +111,7 @@ if __name__ == "__main__":
             A = Agent(fieldsize, destination, startposition, q_field=Q)
 
         while A.continueflag:
-            A.takeAction(0.05)
+            A.takeAction(0.1, 0.99)
         k.append(len(A.memory_act))
         Q = A.q_field
 
