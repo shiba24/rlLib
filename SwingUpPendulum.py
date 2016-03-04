@@ -1,6 +1,3 @@
-import sys
-import cPickle as pickle
-import datetime, math, sys, time
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -48,7 +45,7 @@ class Agent(Strategy):
 
     def initializeState(self, startstate):
         self.state = startstate
-        self.memory_state = np.array([[self.state]])
+        self.memory_state = np.array([self.state])
 
     def initializeQ(self, size):
         self.q_field = np.random.random(np.append(size, len(self.actionlist))) * 0.1 + 0.5
@@ -155,6 +152,7 @@ if __name__ == "__main__":
         num_actions.append(len(A.memory_act))
         Q = A.q_field
 
+    # plot results
     plt.imshow(np.max(A.q_field, axis=2), interpolation='none' )
     plt.title("Estimation of Q value in each place at last")
     plt.xlabel("theta")
