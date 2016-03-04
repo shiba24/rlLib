@@ -25,9 +25,9 @@ class Environment(object):
 
 class Agent(Environment):
 
-    q_fieldsize = 10
+    q_fieldsize = 30
 
-    def __init__(self, fieldsize, destination, startposition, q_field=None, memorysize=10, stepsizeparameter=0.9):
+    def __init__(self, fieldsize, destination, startposition, q_field=None, memorysize=50, stepsizeparameter=0.9):
         Environment.__init__(self, fieldsize, destination)
         self.positioncheck(startposition)
         self.position = startposition
@@ -35,7 +35,7 @@ class Agent(Environment):
         self.actionlist = (self.right, self.left, self.up, self.down)
         self.continueflag = True
 
-        self.memory_pos = np.array(self.position)      # 0 = position, 1 =action
+        self.memory_pos = np.array([self.position])
         self.memory_act = np.array([])
 
         self.stepsizeparameter = stepsizeparameter
@@ -64,23 +64,23 @@ class Agent(Environment):
             action_index = np.random.randint(len(self.actionlist))
         else:
             ls = self.q_field[self.position[0], self.position[1], :]
-            index_list = np.argwhere(ls == np.amax(ls))
-            # action_index = np.argmax(self.q_field[self.position[0], self.position[1], :])
-            action_index = index_list[np.random.permutation(len(index_list))[0]][0]
-
-        self.memory_pos = np.c_[self.memory_pos, self.position]
+            action_index = np.argmax(self.q_field[self.position[0], self.position[1], :])
+            # index_list = np.argwhere(ls == np.amax(ls))
+            # action_index = index_list[np.random.permutation(len(index_list))[0]][0]
+        self.memory_pos = np.append(self.memory_pos, [self.position], axis=0)
         self.memory_act = np.append(self.memory_act, action_index)
         self.actionlist[action_index]()
         self.updateQ(gamma)
         self.endcheck()
 
-
     def initializeQ(self):
-        self.q_field = np.ones([self.q_fieldsize, self.q_fieldsize, len(self.actionlist)]) * 0.5
+        # self.q_field = np.ones([self.q_fieldsize, self.q_fieldsize, len(self.actionlist)]) * 0.5
+        self.q_field = np.random.rand(self.q_fieldsize, self.q_fieldsize, len(self.actionlist)) * 0.1 + 0.5
 
 
+    # reward + gamma max_a' Q(s', a')
     def updateQ(self, gamma):
-        reward = self.field[self.memory_pos[-1][0], self.memory_pos[-1][1]]
+        reward = self.field[self.memory_pos[-1, 0], self.memory_pos[-1, 1]]
         target = reward + gamma * np.max(self.q_field[self.memory_pos[-1][0], self.memory_pos[-1][1], :])
         diff = target - self.q_field[self.memory_pos[-2][0], self.memory_pos[-2][1], self.memory_act[-1]]
         self.q_field[self.memory_pos[-2][0], self.memory_pos[-2][1],
@@ -94,45 +94,72 @@ class Agent(Environment):
 
 
 if __name__ == "__main__":
-    destination = np.array([2, 2])
-    startposition = np.array([6, 6])
-    fieldsize = np.array([10, 10])
-    n_epoch = 1000
+    destination = np.array([5, 5])
+    startposition = np.array([25, 25])
+    fieldsize = np.array([30, 30])
+    n_epoch = 100
     k = []
+    epsilon = 0.1
+    calcepsilon = lambda x: np.e ** (- 1.0 / 1000 * x - 1.5)
+    gamma = 0.99
 
     for i in tqdm(range(0, n_epoch)):
         if i == 0:
-            A = Agent(fieldsize, destination, startposition)
-            plt.imshow(np.mean(A.q_field, axis=2), interpolation='none')
+            A = Agent(fieldsize, destination, startposition.copy())
+            plt.imshow(np.max(A.q_field, axis=2), interpolation='none')
             plt.title("Estimation of Q value in each place at first")
-            plt.savefig("weights_first.png")
-            plt.close("all")
+            plt.savefig("weights_first.pdf")
+            plt.close()
+
+            # plt.imshow(np.mean(A.memory_pos, axis=1), interpolation='none')
+            # plt.title("Position Searched at first")
+            # plt.savefig("position_memory_first.pdf")
+            # plt.close()
         else:
-            A = Agent(fieldsize, destination, startposition, q_field=Q)
+            A = Agent(fieldsize, destination, startposition.copy(), q_field=Q, memorysize=50)
 
         while A.continueflag:
-            A.takeAction(0.1, 0.99)
+            A.takeAction(epsilon, gamma)
+
+        if i == 0:
+            plt.plot(A.memory_pos.T[0], A.memory_pos.T[1])
+            plt.xlim(0, 30)
+            plt.ylim(0, 30)
+            plt.title("Position Track at first")
+            plt.savefig("position_track_first.pdf")
+            plt.close()
+
         k.append(len(A.memory_act))
         Q = A.q_field
 
-
     # plotting results
-    plt.imshow(np.mean(A.q_field, axis=2), interpolation='none' )
+    plt.imshow(np.max(A.q_field, axis=2), interpolation='none' )
     plt.title("Estimation of Q value in each place at last")
-    plt.savefig("weights_last.png")
+    plt.savefig("weights_last.pdf")
+    plt.close()
+
+    plt.plot(A.memory_pos.T[0], A.memory_pos.T[1])
+    plt.xlim(0, 30)
+    plt.ylim(0, 30)
+    plt.title("Position Track at last")
+    plt.savefig("position_track_last.pdf")
     plt.close()
 
     plt.imshow(A.q_field[:, :, 1], interpolation='none' )
     plt.title("Estimation of Q value moving to the left in each place")
-    plt.savefig("weights_last_left.png")
+    plt.savefig("weights_last_left.pdf")
     plt.close()
 
+    # plt.imshow(np.mean(A.memory_pos, axis=1), interpolation='none')
+    # plt.title("Position Searched at last")
+    # plt.savefig("position_memory_last.pdf")
+    # plt.close()
 
     plt.plot(k)
     plt.title("Searching way to destinaton result")
     plt.xlabel("n_epoch")
     plt.ylabel("n_of actions")
-    plt.savefig("result.png")
+    plt.savefig("result.pdf")
     plt.close("all")
 
 
@@ -148,5 +175,11 @@ if __name__ == "__main__":
         #     self.q_field[self.memory_pos[-7:-2][0], self.memory_pos[-7:-2][1],
         #                  self.memory_act[-6:-1]] += self.stepsizeparameter * diff
         # else:
+
+
+    # def searchAction(self, gamma):
+    #     reward = self.field[self.memory_pos[-1, 0], self.memory_pos[-1, 1]]
+    #     target = reward + gamma * np.max(self.q_field[self.memory_pos[-1][0], self.memory_pos[-1][1], :])
+
 """
 
