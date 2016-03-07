@@ -43,6 +43,7 @@ class Agent(Strategy):
         self.continueflag = True
         self.memory_act = np.array([])
 
+
     def initializeState(self, startstate):
         self.state = startstate
         self.memory_state = np.array([self.state])
@@ -53,10 +54,10 @@ class Agent(Strategy):
     def takeAction(self, epsilon, gamma):
         # Get action index due to Strategy
         action_index = self.epsilongreedy(epsilon, self.q_field[tuple(self.state)])
-        self.memory_state = np.append(self.memory_state, [self.state], axis=0)
-        self.memory_act = np.append(self.memory_act, action_index)
         # Taking action
         self.actionlist[action_index]()
+        self.memory_state = np.append(self.memory_state, [self.state], axis=0)
+        self.memory_act = np.append(self.memory_act, action_index)
 
     def updateState(self):
         """ Dummy. need to be overridden """
@@ -67,6 +68,7 @@ class Agent(Strategy):
         target = reward + gamma * np.max(self.q_field[tuple(self.memory_state[-1])])
         diff = target - self.q_field[tuple(np.append(self.memory_state[-2], self.memory_act[-1]))]
         self.q_field[tuple(np.append(self.memory_state[-2], self.memory_act[-1]))] += self.stepsizeparameter * diff
+
 
 
 class Pendulum(Agent):
@@ -131,8 +133,9 @@ class Pendulum(Agent):
             self.continueflag = False
 
 
+
 if __name__ == "__main__":
-    n_epoch = 10000
+    n_epoch = 5000
     num_actions = []
     epsilon = 0.1
     gamma = 0.99
