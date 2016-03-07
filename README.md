@@ -4,14 +4,14 @@ An introduction of reinforcement learning
 Introduction (Q learning) to application (Deep Q Network) of reinforcement learning.
 
 ## Requirements
-### for Q-learning (SearchWay.py , SwingUpPendulum.py)
+### Q-learning
 [tqdm](https://github.com/noamraph/tqdm)
 
 [matplotlib v1.5.1](http://matplotlib.org/)
 
 [numpy v1.10.1](http://www.numpy.org/)
 
-### for DQN
+### DQN
 
 [chainer v1.5.1](http://chainer.org/)
 
@@ -19,7 +19,7 @@ Introduction (Q learning) to application (Deep Q Network) of reinforcement learn
 
 
 ## Usage
-### for Q-learning (SearchWay.py , SwingUpPendulum.py)
+### Q-learning
 
 Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy.
 ```
@@ -32,7 +32,7 @@ $python SwingUpPendulum.py
 ```
 
 
-### for DQN
+### DQN
 
 
 ## Author
