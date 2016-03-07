@@ -1,4 +1,4 @@
-An introduction of reinforcement learning
+Reinforcement learning
 ======
 
 Introduction (Q learning) to application (Deep Q Network) of reinforcement learning.
