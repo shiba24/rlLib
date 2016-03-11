@@ -44,5 +44,7 @@ If you want to use GPU, add option of ```-g 0```.
 
 ## Author
 
-[shiba24](https://github.com/shiba24), March, 2016
+If you have troubles or questions, please contact [shiba24](https://github.com/shiba24).
+
+March, 2016
 
