@@ -177,7 +177,7 @@ if __name__ == "__main__":
     memory = args.memorysize if args.gpu < 0 else 100000
     batchsize = 32  
 
-    n_epoch = 2000 if args.gpu < 0 else 10000
+    n_epoch = 2000 if args.gpu < 0 else 30000
 
     D = np.zeros([memory, 6]).astype(np.float32)
     y = np.zeros(memory).astype(np.float32)

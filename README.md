@@ -15,6 +15,8 @@ Introduction (Q learning) to application (Deep Q Network) of reinforcement learn
 
 [chainer v1.5.1](http://chainer.org/)
 
+[scikit-learn](http://scikit-learn.org/stable/)
+
 [Other packages](https://github.com/pfnet/chainer#requirements) for chainer.
 
 
@@ -23,16 +25,21 @@ Introduction (Q learning) to application (Deep Q Network) of reinforcement learn
 
 Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy.
 ```
-$python SearchWay.py
+$ python SearchWay.py
 ```
 
 Learning how to [swimg up the pendulum](https://www.youtube.com/watch?v=YLAWnYAsai8), using q-learning algorithm with epsilon-greedy strategy.
 ```
-$python SwingUpPendulum.py
+$ python SwingUpPendulum.py
 ```
 
 
 ### DQN
+Learning how to [swimg up the pendulum](https://www.youtube.com/watch?v=YLAWnYAsai8), using [deep-q network](http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html) algorithm originated from nature.
+```
+$ python SwingUpPendulum_neuralnet.py
+```
+If you want to use GPU, add option of ```-g 0```.
 
 
 ## Author
