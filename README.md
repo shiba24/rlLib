@@ -1,7 +1,7 @@
 Reinforcement learning
 ======
 
-Introduction (Q learning) to application (Deep Q Network) of reinforcement learning.
+Introduction (Q learning) to application (Deep Q Network) of reinforcement learning. (Now ongoing, although codes in this repository were completed.)
 
 ## Requirements
 ### Q-learning
@@ -23,7 +23,7 @@ Introduction (Q learning) to application (Deep Q Network) of reinforcement learn
 ## Usage
 ### Q-learning
 
-Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy.
+Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy. Please see result PDFs if interested.
 ```
 $ python SearchWay.py
 ```
@@ -41,10 +41,12 @@ $ python SwingUpPendulum_neuralnet.py
 ```
 If you want to use GPU, add option of ```-g 0```.
 
+Now other tasks and algorithms are ongoing!
+
 
 ## Author
 
-If you have troubles or questions, please contact [shiba24](https://github.com/shiba24).
+If you have any troubles or questions, please contact [shiba24](https://github.com/shiba24).
 
 March, 2016
 
