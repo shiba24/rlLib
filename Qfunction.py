@@ -7,6 +7,8 @@ import NeuralNet
 import chainer
 xp = np
 
+resultdir = "./result/"
+
 
 class Qfunction(object):
     """
@@ -87,9 +89,9 @@ class DQN(Qfunction):
         if epoch == 0:
             print(epoch+1, "draw first figure")
             plt.title("Estimation of Q value in each place at first")
-            plt.savefig("DQN_first_" + middlename + ".pdf")
+            plt.savefig(resultdir + "DQN_first_" + middlename + ".pdf")
         else:
             # print(epoch+1, "draw latest figure")
             plt.title("Estimation of Q value in each place at latest")
-            plt.savefig("DQN_latest_" + middlename + ".pdf")
+            plt.savefig(resultdir + "DQN_latest_" + middlename + ".pdf")
         plt.close("all")
