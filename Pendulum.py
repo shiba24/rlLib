@@ -38,26 +38,23 @@ class Pendulum(Agent):
     """ Actions: Return state array """
     def plus(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) + 5.0)
-        self.state[0] = ntheta
-        return self.state2grid([self.state[0], self.state[1]])
+        omega = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) + 5.0)
+        return self.state2grid([ntheta, omega])
 
     def minus(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) - 5.0)
-        self.state[0] = ntheta
-        return self.state2grid([self.state[0], self.state[1]])
+        omega = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) - 5.0)
+        return self.state2grid([ntheta, omega])
 
     def throw(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]))
-        self.state[0] = ntheta
-        return self.state2grid([self.state[0], self.state[1]])
+        omega = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]))
+        return self.state2grid([ntheta, omega])
 
     """Reward function"""
     def getReward(self):
-        # reward = np.cos(self.state[0])  #- np.abs(self.state[1]) / 5.0
-        reward = 10 - np.abs(self.state[1])
+        reward = np.cos(self.state[0])  #- np.abs(self.state[1]) / 5.0
+        # reward = 10 - np.abs(self.state[1])
         return reward
 
     """Endcheck function"""

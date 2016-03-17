@@ -67,13 +67,13 @@ gamma = 0.99
 memory = args.memorysize if args.gpu < 0 else 100000
 batchsize = 32
 n_epoch = 200 if args.gpu < 0 else 30000
-name = "cpu" if args.gpu < 0 else "gpu"
+name = "pen_cpu" if args.gpu < 0 else "pen_gpu"
 
 # Agent and Qfunction settings
 Agent = Pendulum()
-Q = DQN()
+Q = DQN(gpu=args.gpu)
 Q.initialize(Agent)
-Qhat = DQN()
+Qhat = DQN(gpu=args.gpu)
 Qhat.initialize(Agent)
 
 # Initial datesets settings
@@ -127,4 +127,4 @@ for epoch in tqdm(range(0, n_epoch)):
 
     # drawing result figure
     if epoch % 10.0 == 0.0:
-        Q.drawField(Agent, 20, 40, epoch, name)
+        Q.drawField(Agent, np.pi, 10.0, 20, 40, epoch, name, xlabel="omega", ylabel="theta"):

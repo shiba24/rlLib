@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 import NeuralNet
 import chainer
-xp = np
 
 resultdir = "./result/"
 
@@ -41,20 +40,22 @@ class DQN(Qfunction):
         self.gpu = gpu
         if self.gpu >= 0:
             from chainer import cuda
-            xp = cuda.cupy
-            cuda.get_device(args.gpu).use()
+            self.xp = cuda.cupy
+            cuda.get_device(self.gpu).use()
+        else:
+            self.xp = np
 
     def __call__(self, inputs):
-        if len(xp.array(inputs).shape) == 1:
+        if len(self.xp.array(inputs).shape) == 1:
             n = 1
         else:
             n = len(inputs)
-        inputs_var = chainer.Variable(xp.asarray(inputs).astype(np.float32).reshape(n, 2))
+        inputs_var = chainer.Variable(self.xp.asarray(inputs).astype(np.float32).reshape(n, 2))
         output = self.rawFunction.predict(inputs_var).data
         if self.gpu < 0:
             return output.transpose()
         else:
-            return xp.asnumpy(output.transpose())
+            return self.xp.asnumpy(output.transpose())
 
     """ You need to call this function for the first time. """
     def initialize(self, Agent, n_hidden=50):
@@ -64,28 +65,26 @@ class DQN(Qfunction):
         self.rawFunction = NeuralNet.FcNN3(self.n_input, self.n_hidden,
                                            self.n_out)
         if self.gpu >= 0:
-            self.q_func_raw.to_gpu()
+            self.rawFunction.to_gpu()
 
     def update(self):
         pass
 
-    def function2field(self, Agent, xlen, ylen):
+    def function2field(self, Agent, xlim, ylim, xlen, ylen):
         field = np.zeros([xlen + 1, ylen + 1])
-        xabs = np.pi      # theta
-        yabs = 10.0      # omega
-        y = np.arange(-yabs, yabs + yabs / ylen, 2 * yabs / ylen)
+        y = np.arange(-ylim, ylim + ylim / ylen, 2 * ylim / ylen)
         for i in range(0, xlen + 1):
-            x = np.ones(ylen + 1) * i * (2.0 * xabs / xlen) - xabs
+            x = np.ones(ylen + 1) * i * (2.0 * xlim / xlen) - xlim
             sets = np.append([x], [y], axis=0).transpose()
             sets = np.array([Agent.state2grid([ix, iy]) for (ix, iy) in sets])
             field[i] = np.max(self.__call__(sets.astype(np.float32)), axis=0)
         return field
 
-    def drawField(self, Agent, xlen, ylen, epoch, middlename):
-        F = self.function2field(Agent, xlen, ylen)
+    def drawField(self, Agent, xlim, ylim, xlen, ylen, epoch, middlename, xlabel="omega", ylabel="theta"):
+        F = self.function2field(Agent, xlim, ylim, xlen, ylen)
         plt.imshow(F, interpolation='none')
-        plt.ylabel("theta")
-        plt.xlabel("omega")
+        plt.ylabel(ylabel)
+        plt.xlabel(xlabel)
         if epoch == 0:
             print(epoch+1, "draw first figure")
             plt.title("Estimation of Q value in each place at first")
