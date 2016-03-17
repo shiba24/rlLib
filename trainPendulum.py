@@ -16,40 +16,18 @@ from sklearn.preprocessing import StandardScaler
 
 from Qfunction import DQN
 from Pendulum import Pendulum
+from utils import makeInitialDatasets
 
 
-def makeInitialDatasets(datasize, Agent, Qfunc, epsilon, gamma):
-    print("making first datasets")
-    cnt = 0
-    n_row = len(Agent.state) * 2 + 2
-    Data = np.zeros([datasize, n_row]).astype(np.float32)
-    y = np.zeros(datasize).astype(np.float32)
-    notFull = True
-    while notFull:
-        Agent.initializeState()
-        while Agent.continueflag:
-            Agent.takeAction(Qfunc, epsilon, gamma)
-            reward = Agent.getReward()
-            Data[cnt] = np.append(np.append(Agent.memory_state[-2], np.array([Agent.memory_act[-1], reward])),
-                                  Agent.memory_state[-1])
-            Agent.endcheck()
-            if Agent.successflag:
-                y[cnt] = reward
-            else:
-                y[cnt] = reward + gamma * np.max(Qfunc(Agent.memory_state[-1]))
-            cnt += 1
-            # print(cnt)
-            if cnt >= len(Data):
-                notFull = False
-                break
-    return Data, y
-
-
-parser = argparse.ArgumentParser(description='DQN example')
+parser = argparse.ArgumentParser(description='DQN example - swing up pendulum')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--memorysize', '-m', default=10000, type=int,
                     help='Memory size to remember')
+parser.add_argument('--batchsize', '-b', default=100, type=int,
+                    help='Minibatch size')
+parser.add_argument('--nepoch', '-n', default=3000, type=int,
+                    help='The number of epoch')
 args = parser.parse_args()
 
 Sx = StandardScaler()
@@ -65,8 +43,8 @@ else:
 epsilon = 0.15
 gamma = 0.99
 memory = args.memorysize if args.gpu < 0 else 100000
-batchsize = 32
-n_epoch = 200 if args.gpu < 0 else 30000
+batchsize = args.batchsize
+n_epoch = args.nepoch if args.gpu < 0 else 30000
 name = "pen_cpu" if args.gpu < 0 else "pen_gpu"
 
 # Agent and Qfunction settings
@@ -80,7 +58,6 @@ Qhat.initialize(Agent)
 D, y = makeInitialDatasets(memory, Agent, Q, epsilon, gamma)
 
 optimizer = optimizers.MomentumSGD()
-
 cnt = 0
 for epoch in tqdm(range(0, n_epoch)):
     if epoch > 0:
@@ -127,4 +104,4 @@ for epoch in tqdm(range(0, n_epoch)):
 
     # drawing result figure
     if epoch % 10.0 == 0.0:
-        Q.drawField(Agent, np.pi, 10.0, 20, 40, epoch, name, xlabel="omega", ylabel="theta"):
+        Q.drawField(Agent, [-np.pi, np.pi], [-10.0, 10.0], 20, 40, epoch, name, xlabel="omega", ylabel="theta"):

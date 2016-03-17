@@ -56,10 +56,10 @@ class Searchway(Agent):
 
     """Reward function"""
     def getReward(self):
-        if 2.5 < self.state[0] < 3.5 and 6.5 < self.state[1] < 7.5:
+        if 2.7 < self.state[0] < 3.3 and 6.7 < self.state[1] < 7.3:
             reward = 1
         else:
-            reward = -1
+            reward = -0.5
         return reward
 
     """Endcheck function"""
@@ -67,12 +67,8 @@ class Searchway(Agent):
         if 2.7 < self.state[0] < 3.3 and 6.7 < self.state[1] < 7.3:
             self.continueflag = False
             self.successflag = False
-        if len(self.memory_state) > 100:
+        if len(self.memory_state) > 300:
             self.continueflag = False
-
-
-
-
 
 
 """

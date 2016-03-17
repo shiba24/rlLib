@@ -72,9 +72,9 @@ class DQN(Qfunction):
 
     def function2field(self, Agent, xlim, ylim, xlen, ylen):
         field = np.zeros([xlen + 1, ylen + 1])
-        y = np.arange(-ylim, ylim + ylim / ylen, 2 * ylim / ylen)
+        y = np.arange(ylim[0], ylim[1] + ylim[1] / ylen, (ylim[1] - ylim[0]) / ylen)
         for i in range(0, xlen + 1):
-            x = np.ones(ylen + 1) * i * (2.0 * xlim / xlen) - xlim
+            x = np.ones(ylen + 1) * i * ((xlim[1] - xlim[0]) / xlen) - xlim[0]
             sets = np.append([x], [y], axis=0).transpose()
             sets = np.array([Agent.state2grid([ix, iy]) for (ix, iy) in sets])
             field[i] = np.max(self.__call__(sets.astype(np.float32)), axis=0)
