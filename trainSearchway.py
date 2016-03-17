@@ -15,7 +15,7 @@ import chainer.links as L
 from sklearn.preprocessing import StandardScaler
 
 from Qfunction import DQN
-from Pendulum import Pendulum
+from Searchway import Searchway
 
 
 def makeInitialDatasets(datasize, Agent, Qfunc, epsilon, gamma):
@@ -45,7 +45,8 @@ def makeInitialDatasets(datasize, Agent, Qfunc, epsilon, gamma):
     return Data, y
 
 
-parser = argparse.ArgumentParser(description='DQN example')
+
+parser = argparse.ArgumentParser(description='DQN example - searchway')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--memorysize', '-m', default=10000, type=int,
@@ -67,10 +68,10 @@ gamma = 0.99
 memory = args.memorysize if args.gpu < 0 else 100000
 batchsize = 32
 n_epoch = 200 if args.gpu < 0 else 30000
-name = "pen_cpu" if args.gpu < 0 else "pen_gpu"
+name = "way_cpu" if args.gpu < 0 else "way_gpu"
 
 # Agent and Qfunction settings
-Agent = Pendulum()
+Agent = Searchway()
 Q = DQN(gpu=args.gpu)
 Q.initialize(Agent)
 Qhat = DQN(gpu=args.gpu)
@@ -80,7 +81,6 @@ Qhat.initialize(Agent)
 D, y = makeInitialDatasets(memory, Agent, Q, epsilon, gamma)
 
 optimizer = optimizers.MomentumSGD()
-
 cnt = 0
 for epoch in tqdm(range(0, n_epoch)):
     if epoch > 0:
@@ -127,4 +127,20 @@ for epoch in tqdm(range(0, n_epoch)):
 
     # drawing result figure
     if epoch % 10.0 == 0.0:
-        Q.drawField(Agent, np.pi, 10.0, 20, 40, epoch, name, xlabel="omega", ylabel="theta"):
+        Q.drawField(Agent, 10.0, 10.0, 40, 40, epoch, name, xlabel="x", ylabel="y")
+
+    if epoch == 0:
+        plt.plot(Agent.memory_state.T[0], Agent.memory_state.T[1])
+        plt.xlim(0, 10)
+        plt.ylim(0, 10)
+        plt.title("State Track at first")
+        plt.savefig("state_track_first_dqn.pdf")
+        plt.close()
+
+
+plt.plot(Agent.memory_state.T[0], Agent.memory_state.T[1])
+plt.xlim(0, 10)
+plt.ylim(0, 10)
+plt.title("State Track at last")
+plt.savefig("state_track_last_dqn.pdf")
+plt.close()
