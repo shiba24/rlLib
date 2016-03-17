@@ -4,6 +4,7 @@ import chainer.links as L
 
 import numpy as np
 
+
 class FcNN3(chainer.Chain):
     """ Fully-connected neural network of 3 layers. """
     def __init__(self, n_in, n_units, n_out):
@@ -30,18 +31,14 @@ class FcNN3(chainer.Chain):
         return h
 
 
-
-
 """
+#####  MEMO
+###########
+h_act = np.array([h.data[x, index[x]] for x in range(len(index))]).astype(np.float32)
 
-#
+self.accuracy = F.accuracy(h, t)
 
-#      # h_act = np.array([h.data[x, index[x]] for x in range(len(index))]).astype(np.float32)
-
-        # self.accuracy = F.accuracy(h, t)
-
-        # print(h_act)
-        # print(h.data)
-        # self.loss = F.mean_squared_error(chainer.Variable(h_act), t)
-
+print(h_act)
+print(h.data)
+self.loss = F.mean_squared_error(chainer.Variable(h_act), t)
 """

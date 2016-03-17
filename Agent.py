@@ -17,7 +17,7 @@ class Policy(object):
         if len(self.actionlist) != len(q_list):
             raise AssertionError("The length of actionlist and must be the same as the length of q_list!")
         return np.argmax(q_list)
-            
+
     def epsilongreedy(self, epsilon, q_list):
         if np.random.rand(1) < epsilon:
             return self.random()
@@ -40,15 +40,12 @@ class Agent(Policy):
         self.memory_act = np.array([])
         self.memory_state = np.array([])
 
-
     def initializeState(self, startstate):
         self.state = startstate
         self.memory_state = np.array([self.state])
 
-        
     def updateState(self, actionFunction, *args):
         self.state = actionFunction(*args)
-
 
     def takeAction(self, qFunction, epsilon, gamma):
         # Get action index due to Policy
@@ -63,7 +60,3 @@ class Agent(Policy):
         # memorize
         self.memory_state = np.append(self.memory_state, [self.state], axis=0)
         self.memory_act = np.append(self.memory_act, action_index)
-
-
-
-

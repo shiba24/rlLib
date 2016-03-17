@@ -7,13 +7,13 @@ import NeuralNet
 import chainer
 xp = np
 
+
 class Qfunction(object):
     """
     Qfunction class for generalized tasks of q-learning.
     This class should be argument of Agent.takeAction(qFunction, epsilon, gamma)
         qFunction can be both np.ndarray, or function object.
     """
-
     def __init__(self):
         pass
 
@@ -34,7 +34,6 @@ class Qfield(Qfunction):
 """
 
 
-
 class DQN(Qfunction):
     def __init__(self, gpu=-1):
         self.gpu = gpu
@@ -42,7 +41,6 @@ class DQN(Qfunction):
             from chainer import cuda
             xp = cuda.cupy
             cuda.get_device(args.gpu).use()
-
 
     def __call__(self, inputs):
         if len(xp.array(inputs).shape) == 1:
@@ -56,13 +54,13 @@ class DQN(Qfunction):
         else:
             return xp.asnumpy(output.transpose())
 
-
     """ You need to call this function for the first time. """
     def initialize(self, Agent, n_hidden=50):
         self.n_input = len(Agent.state)
         self.n_out = len(Agent.actionlist)
         self.n_hidden = n_hidden
-        self.rawFunction = NeuralNet.FcNN3(self.n_input, self.n_hidden, self.n_out)
+        self.rawFunction = NeuralNet.FcNN3(self.n_input, self.n_hidden,
+                                           self.n_out)
         if self.gpu >= 0:
             self.q_func_raw.to_gpu()
 
@@ -73,7 +71,7 @@ class DQN(Qfunction):
         field = np.zeros([xlen + 1, ylen + 1])
         xabs = np.pi      # theta
         yabs = 10.0      # omega
-        y = np.arange(-yabs, yabs + yabs / ylen, 2 * yabs / ylen)        
+        y = np.arange(-yabs, yabs + yabs / ylen, 2 * yabs / ylen)
         for i in range(0, xlen + 1):
             x = np.ones(ylen + 1) * i * (2.0 * xabs / xlen) - xabs
             sets = np.append([x], [y], axis=0).transpose()
@@ -81,10 +79,9 @@ class DQN(Qfunction):
             field[i] = np.max(self.__call__(sets.astype(np.float32)), axis=0)
         return field
 
-
     def drawField(self, Agent, xlen, ylen, epoch, middlename):
         F = self.function2field(Agent, xlen, ylen)
-        plt.imshow(F, interpolation='none' )
+        plt.imshow(F, interpolation='none')
         plt.ylabel("theta")
         plt.xlabel("omega")
         if epoch == 0:
@@ -96,6 +93,3 @@ class DQN(Qfunction):
             plt.title("Estimation of Q value in each place at latest")
             plt.savefig("DQN_latest_" + middlename + ".pdf")
         plt.close("all")
-
-
-

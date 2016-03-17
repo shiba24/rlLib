@@ -1,20 +1,17 @@
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import six
 import argparse
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 import chainer
 from chainer import optimizers
 from chainer import serializers
 from chainer import cuda
-
-import chainer
 import chainer.functions as F
 import chainer.links as L
-
 from sklearn.preprocessing import StandardScaler
 
 from Qfunction import DQN
@@ -36,7 +33,7 @@ def makeInitialDatasets(datasize, Agent, Qfunc, epsilon, gamma):
             Data[cnt] = np.append(np.append(Agent.memory_state[-2], np.array([Agent.memory_act[-1], reward])),
                                   Agent.memory_state[-1])
             Agent.endcheck()
-            if Agent.successflag == True:
+            if Agent.successflag:
                 y[cnt] = reward
             else:
                 y[cnt] = reward + gamma * np.max(Qfunc(Agent.memory_state[-1]))
@@ -46,7 +43,6 @@ def makeInitialDatasets(datasize, Agent, Qfunc, epsilon, gamma):
                 notFull = False
                 break
     return Data, y
- 
 
 
 parser = argparse.ArgumentParser(description='DQN example')
@@ -56,12 +52,12 @@ parser.add_argument('--memorysize', '-m', default=10000, type=int,
                     help='Memory size to remember')
 args = parser.parse_args()
 
-Sx = StandardScaler() 
+Sx = StandardScaler()
 Sy = StandardScaler()
 
 # parameter settings
 if args.gpu < 0:
-    xp = np 
+    xp = np
 else:
     xp = cuda.cupy
     cuda.get_device(args.gpu).use()
@@ -69,7 +65,7 @@ else:
 epsilon = 0.15
 gamma = 0.99
 memory = args.memorysize if args.gpu < 0 else 100000
-batchsize = 32  
+batchsize = 32
 n_epoch = 200 if args.gpu < 0 else 30000
 name = "cpu" if args.gpu < 0 else "gpu"
 
@@ -105,7 +101,7 @@ for epoch in tqdm(range(0, n_epoch)):
         # New data acquisition for D and y
         D[cnt] = np.append(np.append(Agent.memory_state[-2], np.array([Agent.memory_act[-1], reward])),
                            Agent.memory_state[-1])
-        if Agent.successflag == True:
+        if Agent.successflag:
             y[cnt] = reward
         else:
             y[cnt] = reward + gamma * np.max(Qhat(Agent.memory_state[-1]))
@@ -132,5 +128,3 @@ for epoch in tqdm(range(0, n_epoch)):
     # drawing result figure
     if epoch % 10.0 == 0.0:
         Q.drawField(Agent, 20, 40, epoch, name)
-    
-

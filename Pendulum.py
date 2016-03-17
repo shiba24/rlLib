@@ -1,6 +1,7 @@
 import numpy as np
 from Agent import Agent
 
+
 class Pendulum(Agent):
     """
     Pendulum agent.
@@ -37,19 +38,19 @@ class Pendulum(Agent):
     """ Actions: Return state array """
     def plus(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02*(-0.01*self.state[1] + 9.8*np.sin(self.state[0]) + 5.0)
+        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) + 5.0)
         self.state[0] = ntheta
         return self.state2grid([self.state[0], self.state[1]])
 
     def minus(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02*(-0.01*self.state[1] + 9.8*np.sin(self.state[0]) - 5.0)
+        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) - 5.0)
         self.state[0] = ntheta
         return self.state2grid([self.state[0], self.state[1]])
 
     def throw(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec
-        self.state[1] = self.state[1] + 0.02*(-0.01*self.state[1] + 9.8*np.sin(self.state[0]))
+        self.state[1] = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]))
         self.state[0] = ntheta
         return self.state2grid([self.state[0], self.state[1]])
 
@@ -71,11 +72,7 @@ class Pendulum(Agent):
             self.continueflag = False
 
 
-
-
 """
-
-
     def initialize(self, n_input, n_hidden, n_out):
         self.q_func_raw = NeuralNet.FcNN3(n_input, n_hidden, n_out)
         self.q_func_raw_target = self.q_func_raw.copy()
@@ -104,12 +101,4 @@ class Pendulum(Agent):
         else:
             return xp.asnumpy(self.q_func_raw_target.predict(chainer.Variable(xp.asarray(np.array(inputs).astype(np.float32).reshape(n, 2)))).data.transpose())
 
-
-
 """
-
-
-
-
-
-
