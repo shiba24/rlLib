@@ -17,7 +17,7 @@ class Searchway(Agent):
 
     fieldsize = np.array([0, 10])
 
-    def __init__(self, memorysize=50, stepsizeparameter=0.9):
+    def __init__(self, memorysize=100, stepsizeparameter=0.9):
         super(Searchway, self).__init__(memorysize, stepsizeparameter)
         self.actionlist = (self.right, self.left, self.up, self.down)
         self.initializeState()
@@ -27,47 +27,45 @@ class Searchway(Agent):
         # 0: upside-down, 1: rightside-left
         self.state = np.random.rand(2) * self.fieldsize[1]
         self.memory_state = np.array([self.state])
+        self.memory_act = np.array([])
         self.continueflag = True
         self.successflag = False
 
-    def state2grid(self, state):
-        return state
-
     """ Actions: Return state array """
     def right(self):
-        if self.state[1] < self.fieldsize[1]:
+        if self.state[1] < self.fieldsize[1] - 0.1:
             self.state[1] += 0.1
         return self.state
 
     def left(self):
-        if self.state[1] > self.fieldsize[1]:
+        if self.state[1] > self.fieldsize[0] + 0.1:
             self.state[1] -= 0.1
         return self.state
 
     def up(self):
-        if self.state[0] < self.fieldsize[0]:
+        if self.state[0] < self.fieldsize[1] - 0.1:
             self.state[0] += 0.1
         return self.state
 
     def down(self):
-        if self.state[0] > self.fieldsize[0]:
+        if self.state[0] > self.fieldsize[0] + 0.1:
             self.state[0] -= 0.1
         return self.state
 
     """Reward function"""
     def getReward(self):
-        if 2.7 < self.state[0] < 3.3 and 6.7 < self.state[1] < 7.3:
+        if 2.5 < self.state[0] < 3.5 and 6.5 < self.state[1] < 7.5:
             reward = 1
         else:
             reward = -0.5
         return reward
 
     """Endcheck function"""
-    def endcheck(self):
-        if 2.7 < self.state[0] < 3.3 and 6.7 < self.state[1] < 7.3:
+    def endcheck(self, volatile='on'):
+        if 2.5 < self.state[0] < 3.5 and 6.5 < self.state[1] < 7.5:
             self.continueflag = False
-            self.successflag = False
-        if len(self.memory_state) > 300:
+            self.successflag = True
+        if len(self.memory_state) > self.memorysize and volatile:
             self.continueflag = False
 
 

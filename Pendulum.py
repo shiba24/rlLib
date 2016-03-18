@@ -25,6 +25,7 @@ class Pendulum(Agent):
         omega = np.random.uniform(-5, 5)
         self.state = self.state2grid([theta, omega])
         self.memory_state = np.array([self.state])
+        self.memory_act = np.array([])
         self.continueflag = True
         self.successflag = False
 
@@ -58,14 +59,14 @@ class Pendulum(Agent):
         return reward
 
     """Endcheck function"""
-    def endcheck(self):
+    def endcheck(self, volatile='on'):
         if np.all(self.state == self.state2grid([0.0, 0.0])):
             print("Success!!")
             self.continueflag = False
             self.successflag = True
         # if self.state[0] <- 4.0 * np.pi or self.state[0] > 4.0 * np.pi:
         #     self.continueflag = False
-        if len(self.memory_state) > 30:
+        if len(self.memory_state) > 30 and volatile:
             self.continueflag = False
 
 

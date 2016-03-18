@@ -32,7 +32,7 @@ class Agent(Policy):
         state (initialize, update)
         takeAction, due to Policy.
     """
-    def __init__(self, memorysize=50, stepsizeparameter=0.9):
+    def __init__(self, memorysize=100, stepsizeparameter=0.9):
         self.memorysize = memorysize
         self.stepsizeparameter = stepsizeparameter
         self.continueflag = True
@@ -46,6 +46,9 @@ class Agent(Policy):
 
     def updateState(self, actionFunction, *args):
         self.state = actionFunction(*args)
+
+    def state2grid(self, state):
+        return state
 
     def takeAction(self, qFunction, epsilon, gamma):
         # Get action index due to Policy

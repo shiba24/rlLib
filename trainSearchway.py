@@ -19,7 +19,6 @@ from Searchway import Searchway
 from utils import makeInitialDatasets
 resultdir = "./result/"
 
-
 parser = argparse.ArgumentParser(description='DQN example - searchway')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
@@ -41,7 +40,7 @@ else:
     xp = cuda.cupy
     cuda.get_device(args.gpu).use()
 
-epsilon = 0.15
+epsilon = 0.1
 gamma = 0.99
 memory = args.memorysize if args.gpu < 0 else 100000
 batchsize = args.batchsize
@@ -49,7 +48,7 @@ n_epoch = args.nepoch if args.gpu < 0 else 30000
 name = "way_cpu" if args.gpu < 0 else "way_gpu"
 
 # Agent and Qfunction settings
-Agent = Searchway()
+Agent = Searchway(memorysize=50)
 Q = DQN(gpu=args.gpu)
 Q.initialize(Agent)
 Qhat = DQN(gpu=args.gpu)
@@ -60,6 +59,8 @@ D, y = makeInitialDatasets(memory, Agent, Q, epsilon, gamma)
 
 optimizer = optimizers.MomentumSGD()
 cnt = 0
+
+# training loop
 for epoch in tqdm(range(0, n_epoch)):
     if epoch > 0:
         Agent.initializeState()
@@ -74,7 +75,7 @@ for epoch in tqdm(range(0, n_epoch)):
         if cnt >= memory:
             print("memory updated")
             cnt -= memory
-        Agent.endcheck()
+        Agent.endcheck(volatile='on')
 
         # New data acquisition for D and y
         D[cnt] = np.append(np.append(Agent.memory_state[-2], np.array([Agent.memory_act[-1], reward])),
@@ -86,8 +87,11 @@ for epoch in tqdm(range(0, n_epoch)):
         cnt += 1
 
         # data scaling and standardization
-        X = Sx.fit_transform(D[:, 0:2])
-        y_scaled = Sy.fit_transform(y.reshape(-1, 1)).reshape(-1, )
+        # X = Sx.fit_transform(D[:, 0:2])
+        X = D[:, 0:2] / 10.0 - 0.5
+        y_scaled = y / 10.0 - 0.5
+        # y_scaled = Sy.fit_transform(y.reshape(-1, 1)).reshape(-1, )
+        # print(cnt, X, y_scaled)
 
         # training, random sampling of the size of minibatch-size
         sum_loss, ind = 0, 0
