@@ -23,16 +23,23 @@ Introduction (Q learning) to application (Deep Q Network) of reinforcement learn
 
 Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy.
 ```
-$ python SearchWay.py
+$ python qlearn.py --task "Searchway"
 ```
-
-
-### DQN
 
 Learning how to [swimg up the pendulum](https://www.youtube.com/watch?v=YLAWnYAsai8), using deep-q network.
+```
+$ python qlearn.py --task "Pendulum"
+```
+
+### DQN
+Learning the tasks using Deep Q Network.
 
 ```
-$ python trainPendulum.py
+$ python dqn.py --task "Searchway"
+```
+
+```
+$ python dqn.py --task "Searchway"
 ```
 
 
