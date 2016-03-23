@@ -12,13 +12,13 @@ class Searchway(Agent):
             - defines and returns reward
     """
 
-    onestep = 1.0
+    onestep = 0.05
     # 0: upside-down, 1: rightside-left
-    staterange = np.array([[0.0, 10.0], [0.0, 10.0]])   # [[xmin, xmax], [ymin, ymax]]
-    goalrange = np.array([[3.0, 5.0], [3.0, 5.0]])      # [[xmin, xmax], [ymin, ymax]]
+    staterange = np.array([[-0.5, 0.5], [-0.5, 0.5]])   # [[xmin, xmax], [ymin, ymax]]
+    goalrange = np.array([[-0.3, -0.2], [0.1, 0.2]])      # [[xmin, xmax], [ymin, ymax]]
 
-    def __init__(self, memorysize=5000, gamma=0.9, stepsizeparameter=0.9, forcedinfield=True):
-        super(Searchway, self).__init__(memorysize, gamma, stepsizeparameter, forcedinfield)
+    def __init__(self, memorysize=5000, gamma=0.9, stepsizeparameter=0.9, forcedinfield=True, volatile=True):
+        super(Searchway, self).__init__(memorysize, gamma, stepsizeparameter, forcedinfield=forcedinfield, volatile=volatile)
         self.actionlist = (self.right, self.left, self.up, self.down)
 
     """ Actions: Return state array """
@@ -49,7 +49,7 @@ class Searchway(Agent):
         elif self.fieldoutcheck():
             reward = -1.0
         elif len(self.memory_state) > self.memorysize and self.volatile:
-            reward = -0.5
+            reward = -1.0
         else:
             reward = -0.0
         return reward
@@ -74,7 +74,7 @@ class Pendulum(Agent):
     """
     onestep = 5.0
     staterange = np.array([[-np.pi, np.pi], [-5.0, 5.0]])   # [[xmin, xmax], [ymin, ymax]]
-    goalrange = np.array([[-0.5, 0.5], [-5.0, 5.0]])      # [[xmin, xmax], [ymin, ymax]]
+    goalrange = np.array([[-0.1, 0.1], [-10.0, 10.0]])      # [[xmin, xmax], [ymin, ymax]]
 
     def __init__(self, memorysize=50, gamma=0.9, stepsizeparameter=0.9, forcedinfield=False):
         super(Pendulum, self).__init__(memorysize, gamma, stepsizeparameter, forcedinfield)
@@ -95,7 +95,7 @@ class Pendulum(Agent):
             omega = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) + 5.0)
             return self.state2grid([ntheta, omega])
         else:
-            return self.state2grid(self.state)
+            self.throw()
 
     def minus(self):
         if not (self.state[1] < self.staterange[1, 0] + self.onestep and self.forcedinfield):
@@ -103,7 +103,7 @@ class Pendulum(Agent):
             omega = self.state[1] + 0.02 * (-0.01 * self.state[1] + 9.8 * np.sin(self.state[0]) - 5.0)
             return self.state2grid([ntheta, omega])
         else:
-            return self.state2grid(self.state)
+            self.throw()
 
     def throw(self):
         ntheta = self.state[0] + 0.02 * self.state[1]   # 0.02 sec

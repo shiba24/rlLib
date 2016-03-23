@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
 
 import NeuralNet
 import chainer
@@ -25,31 +27,60 @@ class Qfunction(object):
     def update(self):
         raise NotImplementedError
 
-    # def function2field(self):
-    #     raise NotImplementedError
-
     def function2field(self, staterange):
         # field = np.zeros([self.discretize + 1, self.discretize + 1])
         field = np.zeros([self.discretize, self.discretize])
         field_min = np.zeros([self.discretize, self.discretize])
+        field_right = np.zeros([self.discretize, self.discretize])
         deltax = (staterange[0, 1] - staterange[0, 0]) / self.discretize
         deltay = (staterange[1, 1] - staterange[1, 0]) / self.discretize
         for i in range(0, self.discretize):
             for j in range(0, self.discretize):
-                xy = np.array([staterange[0, 0] + deltax * i, staterange[1, 0] + deltay * j])
+                xy = np.array([staterange[0, 0] + deltax * (i + 0.5), staterange[1, 0] + deltay * (j + 0.5)])
                 field[i, j] = np.max(self.__call__(xy.astype(np.float32)))
+                field_right[i, j] = self.__call__(xy.astype(np.float32))[0, 0]
                 field_min[i, j] = np.min(self.__call__(xy.astype(np.float32)))
+                # print(xy, self.__call__(xy.astype(np.float32)), field[i, j])
+                # f[i, j] = xy[0]
+        # print(f)
         print(np.max(field), np.max(field_min), np.min(field), np.min(field_min))
         # field = field - np.min(field)
-        return field
+        return field, field_right
 
     def drawField(self, staterange, savefilename, xlabel="omega", ylabel="theta"):
-        F = self.function2field(staterange)
-        plt.imshow(F, interpolation='none')
-        plt.ylabel(ylabel)
-        plt.xlabel(xlabel)
-        plt.title("Estimation of Q value in each place")
-        plt.savefig(savefilename)
+        F, Fr = self.function2field(staterange)
+        plt.figure(figsize=(12, 9))
+        ax = plt.axes()
+        xtickl = np.linspace(staterange[0, 0], staterange[0, 1], self.discretize + 1)
+        ytickl = np.linspace(staterange[1, 0], staterange[1, 1], self.discretize + 1)
+        sns.heatmap(F, ax=ax, xticklabels=xtickl, yticklabels=ytickl) #, vmin=-0.1, vmax=0.1)
+        locs, labels = sns.plt.xticks()
+        sns.plt.setp(labels, rotation=90)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title("Estimation of Q value in each place")
+        # plt.imshow(F, interpolation='none')
+        sns.plt.savefig(savefilename)
+        sns.plt.close("all")
+
+        plt.figure(figsize=(12, 9))
+        ax = plt.axes()
+        sns.heatmap(Fr, ax=ax, xticklabels=xtickl, yticklabels=ytickl) #, vmin=-0.1, vmax=0.1)
+        locs, labels = sns.plt.xticks()
+        sns.plt.setp(labels, rotation=90)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title("Estimation of Q value in each place of action 1")
+        sns.plt.savefig("right.png")
+        sns.plt.close("all")
+
+
+    def plotOutputHistory(self, savefigname="history.png"):
+        plt.plot(self.rawFunction.history)
+        plt.xlabel("N of actions")
+        plt.ylabel("Q value (mean)")
+        plt.title("Mean Q-function output of each action")
+        plt.savefig(savefigname)
         plt.close("all")
 
 

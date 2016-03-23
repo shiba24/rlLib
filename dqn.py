@@ -12,12 +12,11 @@ from chainer import serializers
 from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
-from sklearn.preprocessing import StandardScaler
 
 from Qfunction import DQN
 import Task
-from utils import makeInitialDatasets
-resultdir = "./result/"
+import utils
+resultdir = "./result"
 
 parser = argparse.ArgumentParser(description='DQN example - searchway')
 parser.add_argument('--task', '-t', choices=('Pendulum', 'Searchway'),
@@ -36,9 +35,6 @@ parser.add_argument('--nepoch', '-n', default=3000, type=int,
                     help='The number of epoch')
 args = parser.parse_args()
 
-Sx = StandardScaler()
-Sy = StandardScaler()
-
 # parameter settings
 if args.gpu < 0:
     xp = np
@@ -47,24 +43,25 @@ else:
     cuda.get_device(args.gpu).use()
 
 
-gamma = 0.99
+gamma = 0.9
 final_epsilon = args.epsilon
 stepsizeparameter = args.alpha
-memory = args.memorysize if args.gpu < 0 else 100000
+memory = args.memorysize            # if args.gpu < 0 else 100000
 batchsize = args.batchsize
-n_epoch = args.nepoch if args.gpu < 0 else 30000
+n_epoch = args.nepoch               # if args.gpu < 0 else 30000
+num_actions = []
 
 # Agent and Qfunction settings
 if args.task == "Pendulum":
-    Agent = Task.Pendulum(memorysize=memory, stepsizeparameter=stepsizeparameter)
+    Agent = Task.Pendulum(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
     name = "pen_cpu" if args.gpu < 0 else "pen_gpu"
     xlab = "omega"
     ylab = "theta"
 elif args.task == "Searchway":
-    Agent = Task.Searchway(memorysize=memory, stepsizeparameter=stepsizeparameter)
+    Agent = Task.Searchway(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
     name = "way_cpu" if args.gpu < 0 else "way_gpu"
-    xlab = "x"
-    ylab = "y"
+    xlab = "y"
+    ylab = "x"
 
 
 Q = DQN(discretize=20, gpu=args.gpu)
@@ -73,7 +70,11 @@ Qhat = DQN(discretize=20, gpu=args.gpu)
 Qhat.initialize(Agent, n_hidden=50)
 
 # Initial datesets settings
-D, y = makeInitialDatasets(memory, Agent, Q, epsilon=1.0, gamma=gamma)
+Agent.forcedinfield = False
+Agent.volatile = True
+
+D, y = utils.makeInitialDatasets(memory, Agent, Q, epsilon=1.0, gamma=gamma)
+utils.saveData(D, y)
 
 optimizer = optimizers.MomentumSGD(lr=0.00025, momentum=0.95)
 optimizer.setup(Q.rawFunction)
@@ -97,11 +98,10 @@ for epoch in tqdm(range(0, n_epoch)):
         Q.drawField(Agent.staterange, 
                     resultdir + "dqn_qf_" + name + "_latest.pdf", xlabel=xlab, ylabel=ylab)
 
-    epsilon = np.max(1.0 - epoch * 0.9 * 10 / n_epoch, final_epsilon)
+    epsilon = np.max(1.0 - epoch * 0.9 * 4 / n_epoch, final_epsilon)
 
     while Agent.continueflag:
         # Action of agents
-        Agent.volatile = False
         Agent.takeAction(Q, epsilon)
         reward = Agent.getReward()
         if cnt >= memory:
@@ -122,10 +122,8 @@ for epoch in tqdm(range(0, n_epoch)):
         C += 1
 
         # data scaling and standardization
-        # X = Sx.fit_transform(D[:, 0:2])
-        X = D[:, 0:2] / 10.0 - 0.5
+        X = D[:, 0:2] # / 10.0 - 0.5
         y_scaled = y # / 10.0
-        # y_scaled = Sy.fit_transform(y.reshape(-1, 1)).reshape(-1, ) * 2.0 - 1.0
 
         # training, random sampling of the size of minibatch-size
         sum_loss = 0
@@ -140,12 +138,20 @@ for epoch in tqdm(range(0, n_epoch)):
         optimizer.update(Q.rawFunction, x, t, indexes)
         sum_loss += float(Q.rawFunction.loss.data) * len(t.data)
 
-        if C % 2500 == 0:
-            print("#################### Q function copied! ####################")
+        if C % 1000 == 0:
+            print("#################### Q function copied! ####################", C)
             Qhat.rawFunction = Q.rawFunction.copy()
 
-    # drawing result figure
-    if epoch == 0.0:
-        Agent.drawField(resultdir + "dqn_track_" + name + "_first.pdf")
-    elif epoch % 10.0 == 0.0:
-        Agent.drawField(resultdir + "dqn_track_" + name + "_latest.pdf")
+        if len(Agent.memory_act) > 100 and len(Agent.memory_act) % 50 == 0:
+            Agent.drawField(resultdir + "dqn_track_" + name + "_latest.png")
+
+    num_actions.append(len(Agent.memory_act))
+    Q.plotOutputHistory(resultdir + "history_q.png")
+
+    plt.plot(num_actions)
+    plt.title("Searching way to destinaton result")
+    plt.xlabel("n_epoch")
+    plt.ylabel("n_of actions")
+    plt.savefig(resultdir + "dqn_n_actions_" + name + ".pdf")
+    plt.close("all")
+    

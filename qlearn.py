@@ -45,7 +45,7 @@ elif args.task == "Searchway":
     xlab = "x"
     ylab = "y"
 
-Q = Qfield(discretize=20)
+Q = Qfield(discretize=10)
 Q.initialize(Agent)
 
 # Initial datesets settings
@@ -55,17 +55,15 @@ for epoch in tqdm(range(0, n_epoch)):
     # drawing q-function figure
     if epoch == 0:
         print(epoch+1, "draw first figure")
-        # print(Agent.staterange)
         Q.drawField(Agent.staterange, 
                     resultdir + "q_qf_" + name + "_first.pdf", xlabel=xlab, ylabel=ylab)
     elif epoch % 10.0 == 0.0:
-        # print(Agent.staterange)
         Q.drawField(Agent.staterange, 
                     resultdir + "q_qf_" + name + "_latest.pdf", xlabel=xlab, ylabel=ylab)
 
     epsilon = np.max(1.0 - epoch * 0.9 * 10 / n_epoch, final_epsilon)
-    if epoch > n_epoch * 9 / 10:
-        Agent.forcedinfield = True
+    # if epoch > n_epoch * 9 / 10:
+    #     Agent.forcedinfield = True
 
     while Agent.continueflag:
         # Action of agents

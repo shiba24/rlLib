@@ -4,7 +4,7 @@ import Qfunction
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
+import seaborn as sns
 
 class Policy(object):
     """
@@ -35,25 +35,25 @@ class Agent(Policy):
         state (initialize, update)
         takeAction, due to Policy.
     """
-    def __init__(self, memorysize=100, gamma=0.9, stepsizeparameter=0.9, forcedinfield=True):
+    def __init__(self, memorysize=100, gamma=0.9, stepsizeparameter=0.9, forcedinfield=True, volatile=True):
         self.memorysize = memorysize
         self.stepsizeparameter = stepsizeparameter
         self.gamma = gamma
         self.forcedinfield = forcedinfield
+        self.volatile = volatile
         self.initializeState()
 
     def updateState(self, actionFunction, *args):
         self.state = actionFunction(*args)
 
     def initializeState(self):
-        self.state = self.state2grid(np.random.rand(len(self.staterange)) * self.staterange[:, 1])
+        self.state = self.state2grid(np.random.rand(len(self.staterange)) * (self.staterange[:, 1] - self.staterange[:, 0]) + self.staterange[:, 0])
         while self.goalcheck():
             self.state = self.state2grid(np.random.rand(len(self.staterange)) * self.staterange[:, 1])
         self.memory_state = np.array([self.state])
         self.memory_act = np.array([])
         self.continueflag = True
         self.successflag = False
-        self.volatile = True
 
     def state2grid(self, state):
         return state
@@ -99,12 +99,12 @@ class Agent(Policy):
         if self.goalcheck():
             self.continueflag = False
             self.successflag = True
-            print("Goal!   ", len(self.memory_act), len(self.memory_state), self.state)
+            print("Goal!   ", len(self.memory_act), len(self.memory_state), self.memory_state[0], self.state)
         elif self.fieldoutcheck():
             self.continueflag = False
             self.successflag = False
-            print("Give up!", len(self.memory_act), len(self.memory_state), self.state)            
+            print("Give up!", len(self.memory_act), len(self.memory_state), self.memory_state[0], self.state)
         elif len(self.memory_state) > self.memorysize and self.volatile:
             self.continueflag = False
-            self.successflag = True
-            print("Give up!", len(self.memory_act), len(self.memory_state), self.state)
+            self.successflag = False
+            print("Give up!", len(self.memory_act), len(self.memory_state), self.memory_state[0], self.state)
