@@ -41,21 +41,30 @@ class Agent(Policy):
         self.gamma = gamma
         self.forcedinfield = forcedinfield
         self.volatile = volatile
+        self.xlabel = "x"
+        self.ylabel = "y"
         self.initializeState()
 
     def updateState(self, actionFunction, *args):
         self.state = actionFunction(*args)
 
     def initializeState(self):
-        self.state = self.state2grid(np.random.rand(len(self.staterange)) * (self.staterange[:, 1] - self.staterange[:, 0]) + self.staterange[:, 0])
+        # self.state = np.random.rand(len(self.staterange)) * (self.staterange[:, 1] - self.staterange[:, 0]) + self.staterange[:, 0]
+        self.state = np.random.rand(len(self.staterange)) - 0.5
         while self.goalcheck():
-            self.state = self.state2grid(np.random.rand(len(self.staterange)) * self.staterange[:, 1])
+            self.state = np.random.rand(len(self.staterange)) - 0.5
+            # self.state = np.random.rand(len(self.staterange)) * (self.staterange[:, 1] - self.staterange[:, 0]) + self.staterange[:, 0]
         self.memory_state = np.array([self.state])
         self.memory_act = np.array([])
         self.continueflag = True
         self.successflag = False
 
-    def state2grid(self, state):
+    def scaleState(self, state):
+        state = (state - np.mean(self.staterange, axis=1)) / np.diff(self.staterange, axis=1).reshape(1,-1)[0]
+        return state
+
+    def scaleStateInv(self, state):
+        state = state * np.diff(self.staterange, axis=1).reshape(1,-1)[0] + np.mean(self.staterange, axis=1)
         return state
 
     def goalcheck(self):

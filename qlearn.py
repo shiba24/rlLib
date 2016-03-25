@@ -37,13 +37,9 @@ num_actions = []
 if args.task == "Pendulum":
     Agent = Task.Pendulum(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
     name = "pen"
-    xlab = "omega"
-    ylab = "theta"
 elif args.task == "Searchway":
     Agent = Task.Searchway(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
     name = "way"
-    xlab = "x"
-    ylab = "y"
 
 Q = Qfield(discretize=10)
 Q.initialize(Agent)
@@ -54,16 +50,12 @@ for epoch in tqdm(range(0, n_epoch)):
 
     # drawing q-function figure
     if epoch == 0:
-        print(epoch+1, "draw first figure")
-        Q.drawField(Agent.staterange, 
-                    resultdir + "q_qf_" + name + "_first.pdf", xlabel=xlab, ylabel=ylab)
+        print(epoch + 1, "draw first figure")
+        Q.drawField(Agent, resultdir + "q_qf_" + name + "_first.pdf")
     elif epoch % 10.0 == 0.0:
-        Q.drawField(Agent.staterange, 
-                    resultdir + "q_qf_" + name + "_latest.pdf", xlabel=xlab, ylabel=ylab)
+        Q.drawField(Agent, resultdir + "q_qf_" + name + "_latest.pdf")
 
     epsilon = np.max(1.0 - epoch * 0.9 * 10 / n_epoch, final_epsilon)
-    # if epoch > n_epoch * 9 / 10:
-    #     Agent.forcedinfield = True
 
     while Agent.continueflag:
         # Action of agents
@@ -75,10 +67,9 @@ for epoch in tqdm(range(0, n_epoch)):
         if Agent.continueflag:
             Q.update(Agent, reward)
 
+        if len(Agent.memory_act) > 100 and len(Agent.memory_act) % 50 == 0:
+            Agent.drawField(resultdir + "q_track_" + name + "_latest.png")
+
     num_actions.append(len(Agent.memory_act))
 
     # drawing result figure
-    if epoch == 0.0:
-        Agent.drawField(resultdir + "q_track_" + name + "_first_q.pdf")
-    elif epoch % 10.0 == 0.0:
-        Agent.drawField(resultdir + "q_track_" + name + "_latest_q.pdf")

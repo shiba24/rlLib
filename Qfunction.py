@@ -7,6 +7,7 @@ sns.set()
 
 import NeuralNet
 import chainer
+from chainer import optimizers
 
 
 class Qfunction(object):
@@ -28,52 +29,32 @@ class Qfunction(object):
         raise NotImplementedError
 
     def function2field(self, staterange):
-        # field = np.zeros([self.discretize + 1, self.discretize + 1])
         field = np.zeros([self.discretize, self.discretize])
         field_min = np.zeros([self.discretize, self.discretize])
-        field_right = np.zeros([self.discretize, self.discretize])
         deltax = (staterange[0, 1] - staterange[0, 0]) / self.discretize
         deltay = (staterange[1, 1] - staterange[1, 0]) / self.discretize
         for i in range(0, self.discretize):
             for j in range(0, self.discretize):
                 xy = np.array([staterange[0, 0] + deltax * (i + 0.5), staterange[1, 0] + deltay * (j + 0.5)])
                 field[i, j] = np.max(self.__call__(xy.astype(np.float32)))
-                field_right[i, j] = self.__call__(xy.astype(np.float32))[0, 0]
                 field_min[i, j] = np.min(self.__call__(xy.astype(np.float32)))
-                # print(xy, self.__call__(xy.astype(np.float32)), field[i, j])
-                # f[i, j] = xy[0]
-        # print(f)
         print(np.max(field), np.max(field_min), np.min(field), np.min(field_min))
-        # field = field - np.min(field)
-        return field, field_right
+        return field
 
-    def drawField(self, staterange, savefilename, xlabel="omega", ylabel="theta"):
-        F, Fr = self.function2field(staterange)
+    def drawField(self, Agent, savefilename):
+        F = self.function2field(Agent.staterange)
         plt.figure(figsize=(12, 9))
         ax = plt.axes()
-        xtickl = np.linspace(staterange[0, 0], staterange[0, 1], self.discretize + 1)
-        ytickl = np.linspace(staterange[1, 0], staterange[1, 1], self.discretize + 1)
+        xtickl = np.linspace(Agent.staterange[0, 0], Agent.staterange[0, 1], self.discretize + 1)
+        ytickl = np.linspace(Agent.staterange[1, 0], Agent.staterange[1, 1], self.discretize + 1)
         sns.heatmap(F, ax=ax, xticklabels=xtickl, yticklabels=ytickl) #, vmin=-0.1, vmax=0.1)
         locs, labels = sns.plt.xticks()
         sns.plt.setp(labels, rotation=90)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title("Estimation of Q value in each place")
-        # plt.imshow(F, interpolation='none')
+        ax.set_xlabel(Agent.ylabel)
+        ax.set_ylabel(Agent.xlabel)
+        ax.set_title("Max of estimated Q in each state")
         sns.plt.savefig(savefilename)
         sns.plt.close("all")
-
-        plt.figure(figsize=(12, 9))
-        ax = plt.axes()
-        sns.heatmap(Fr, ax=ax, xticklabels=xtickl, yticklabels=ytickl) #, vmin=-0.1, vmax=0.1)
-        locs, labels = sns.plt.xticks()
-        sns.plt.setp(labels, rotation=90)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title("Estimation of Q value in each place of action 1")
-        sns.plt.savefig("right.png")
-        sns.plt.close("all")
-
 
     def plotOutputHistory(self, savefigname="history.png"):
         plt.plot(self.rawFunction.history)
@@ -152,9 +133,36 @@ class DQN(Qfunction):
         if self.gpu >= 0:
             self.rawFunction.to_gpu()
 
-    def update(self):
-        pass
+    def setupOptimizerSGD(self, lr=0.00025, momentum=0.95):
+        self.optimizer = optimizers.MomentumSGD(lr=lr, momentum=momentum)
+        self.optimizer.setup(self.rawFunction)
 
+
+    def update(self, X, y, batchsize):
+        i = 2
+        Xstate = X[:, 0:i] # / 10.0 - 0.5
+        y_scaled = y # / 10.0
+
+        # training, random sampling of the size of minibatch-size
+        sum_loss = 0
+        perm = np.random.permutation(len(X))
+        ind = 0
+        x = chainer.Variable(self.xp.asarray(Xstate[perm[ind:ind + batchsize]]))
+        t = chainer.Variable(self.xp.asarray(y_scaled[perm[ind:ind + batchsize]]))
+        indexes = chainer.Variable(self.xp.asarray(X[perm[ind:ind + batchsize], i].astype(np.int32)))
+        self.optimizer.update(self.rawFunction, x, t, indexes)
+        sum_loss += float(self.rawFunction.loss.data) * len(t.data)
+
+    def copy(self, originalDQN):
+        self.n_input = originalDQN.n_input
+        self.n_out = originalDQN.n_out
+        self.n_hidden = originalDQN.n_hidden
+        self.rawFunction = originalDQN.rawFunction.copy()
+        if self.gpu >= 0:
+            self.rawFunction.to_gpu()
+
+
+"""
     # def function2field(self, staterange, xlen, ylen):
     #     field = np.zeros([xlen + 1, ylen + 1])
     #     deltax = (staterange[0, 1] - staterange[0, 0]) / xlen
@@ -187,3 +195,4 @@ class DQN(Qfunction):
     #         sets = np.array([Agent.state2grid([ix, iy]) for (ix, iy) in pairs])
     #         field[i] = np.max(self.__call__(sets.astype(np.float32)), axis=0)
     #     return field
+"""
