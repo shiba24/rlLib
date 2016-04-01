@@ -3,24 +3,23 @@ Reinforcement learning
 
 Introduction (Q learning) to application (Deep Q Network) of reinforcement learning.
 
-You can define your own task with little effort and solve it with q-learning or dqn algorithm easily!
+You can [define your own task](https://github.com/shiba24/reinforcement_learning#define-your-own-task) with little effort and solve it with q-learning or dqn algorithm easily!
 
 ## Requirements
 ### Q-learning
-[tqdm](https://github.com/noamraph/tqdm)
+- [tqdm](https://github.com/noamraph/tqdm)
 
-[matplotlib v1.5.1](http://matplotlib.org/)
+- [matplotlib v1.5.1](http://matplotlib.org/)
 
-[numpy v1.10.1](http://www.numpy.org/)
+- [numpy v1.10.1](http://www.numpy.org/)
 
-[seaborn](https://stanford.edu/~mwaskom/software/seaborn/)
+- [seaborn](https://stanford.edu/~mwaskom/software/seaborn/)
 
 ### DQN
 
-[chainer v1.5.1 +](http://chainer.org/)
+- [chainer v1.5.1 +](http://chainer.org/)
 
-[Other packages](https://github.com/pfnet/chainer#requirements) for chainer.
-
+- [Other packages](https://github.com/pfnet/chainer#requirements) for chainer.
 
 ## Usage
 ### Q-learning
