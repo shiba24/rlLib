@@ -1,7 +1,14 @@
 Reinforcement learning
 ======
 
-Introduction (Q learning) to application (Deep Q Network) of reinforcement learning.
+Simple library of reinforcement learning (Q learning and Deep Q Network).
+
+
+## Overview
+
+Q learning is a classical algorithm for reinforcement learning.
+
+Deep Q Network, DQN, is originated from [Human-level control through deep reinforcement learning](http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html), by Volodymyr Mnih et al.
 
 You can [define your own task](https://github.com/shiba24/reinforcement_learning#define-your-own-task) with little effort and solve it with q-learning or dqn algorithm easily!
 
