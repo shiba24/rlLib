@@ -1,3 +1,5 @@
+import sys,os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 import numpy as np
 from tqdm import tqdm
 import six
@@ -6,9 +8,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from Qfunction import Qfield
-import Task
-resultdir = "./result/"
+from reinforcement_learning.Qfunctions.Qfield import Qfield
+from reinforcement_learning.Tasks import Pendulum
+from reinforcement_learning.Tasks import Searchway
+
+
+resultdir = "./data/"
 
 parser = argparse.ArgumentParser(description='Q learning example')
 parser.add_argument('--task', '-t', choices=('Pendulum', 'Searchway'),
@@ -35,10 +40,10 @@ num_actions = []
 
 # Agent and Qfunction settings
 if args.task == "Pendulum":
-    Agent = Task.Pendulum(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
+    Agent = Pendulum.PendulumSolver(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
     name = "pen"
 elif args.task == "Searchway":
-    Agent = Task.Searchway(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
+    Agent = Searchway.SearchwaySolver(memorysize=memory, gamma=gamma, stepsizeparameter=stepsizeparameter)
     name = "way"
 
 Q = Qfield(discretize=10)

@@ -1,12 +1,16 @@
 import numpy as np
-import types
-import Qfunction
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys,os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../../')
 
-class Policy(object):
+import types
+from reinforcement_learning.Qfunctions.BaseClass import QfunctionBase
+
+
+class PolicyBase(object):
     """
     Policy sets for agent to choice:    {random, greedy, epsilongreedy}
     """
@@ -28,7 +32,7 @@ class Policy(object):
             return self.greedy(q_list)
 
 
-class Agent(Policy):
+class AgentBase(PolicyBase):
     """
     Agent class for generalized tasks of q-learning.
     function sets about:
@@ -83,7 +87,7 @@ class Agent(Policy):
         # Get action index due to Policy
         if isinstance(qFunction, np.ndarray):
             action_index = self.epsilongreedy(epsilon, qFunction[tuple(self.state)])
-        elif isinstance(qFunction, types.FunctionType) or isinstance(qFunction, Qfunction.Qfunction):
+        elif isinstance(qFunction, types.FunctionType) or isinstance(qFunction, QfunctionBase):
             action_index = self.epsilongreedy(epsilon, qFunction(self.state))
         else:
             action_index = self.random()

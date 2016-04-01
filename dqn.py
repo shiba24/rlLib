@@ -1,3 +1,5 @@
+import sys,os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 import numpy as np
 from tqdm import tqdm
 import six
@@ -7,10 +9,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from chainer import cuda
 
-from Qfunction import DQN
-import Task
-import utils
-resultdir = "./result/"
+from reinforcement_learning.Qfunctions.DQN import DQN
+from reinforcement_learning.Tasks import Pendulum
+from reinforcement_learning.Tasks import Searchway
+from reinforcement_learning.Utils import utils
+
+resultdir = "./data/"
+
 
 parser = argparse.ArgumentParser(description='DQN example - searchway')
 parser.add_argument('--task', '-t', choices=('Pendulum', 'Searchway'),
@@ -47,10 +52,10 @@ num_actions = []
 
 # Agent and Qfunction settings
 if args.task == "Pendulum":
-    Agent = Task.Pendulum(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
+    Agent = Pendulum.PendulumSolver(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
     name = "pen_cpu" if args.gpu < 0 else "pen_gpu"
 elif args.task == "Searchway":
-    Agent = Task.Searchway(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
+    Agent = Searchway.SearchwaySolver(memorysize=memory / 10, stepsizeparameter=stepsizeparameter)
     name = "way_cpu" if args.gpu < 0 else "way_gpu"
 
 
