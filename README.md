@@ -8,7 +8,7 @@ Simple library of reinforcement learning (Q learning and Deep Q Network).
 
 Q learning is a classical algorithm for reinforcement learning.
 
-Deep Q Network, DQN, is originated from [Human-level control through deep reinforcement learning](http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html), by Volodymyr Mnih et al.
+Deep Q Network (DQN) is originated from [Human-level control through deep reinforcement learning](http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html) by Volodymyr Mnih et al.
 
 You can [define your own task](https://github.com/shiba24/reinforcement_learning#define-your-own-task) with little effort and solve it with q-learning or dqn algorithm easily!
 
@@ -28,7 +28,7 @@ You can [define your own task](https://github.com/shiba24/reinforcement_learning
 
 - [Other packages](https://github.com/pfnet/chainer#requirements) for chainer.
 
-## Usage
+## Usage: Solve sample tasks
 ### Q-learning
 
 Learning the shortest way to the destination of given field, using q-learning algorithm with epsilon-greedy strategy.
@@ -53,9 +53,9 @@ $ python dqn.py --task "Pendulum"
 ```
 
 
-## Define your own task
+## Usage: Define your own task
 
-Now in preparation...
+Now in prep...
 
 
 ## Author
