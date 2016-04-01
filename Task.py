@@ -55,7 +55,6 @@ class Searchway(Agent):
         return reward
 
 
-
 class Pendulum(Agent):
     """
     Pendulum agent.
