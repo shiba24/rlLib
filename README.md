@@ -8,9 +8,11 @@ Simple library of reinforcement learning (Q learning and Deep Q Network).
 
 Q learning is a classical algorithm for reinforcement learning and deep Q Network (DQN) is originated from [Human-level control through deep reinforcement learning](http://www.nature.com/nature/journal/v518/n7540/abs/nature14236.html) by Volodymyr Mnih et al.
 
-With this library, you can solve [some sample tasks](https://github.com/shiba24/reinforcement_learning#usage-solve-sample-tasks) with either algorithm.
+Also, now [Double-DQN](http://arxiv.org/abs/1509.06461) is appearing soon and [Dueling Network](http://arxiv.org/abs/1511.06581) in prep.
 
-You can also [define your own task](https://github.com/shiba24/reinforcement_learning#define-your-own-task) with little effort and solve it with q-learning or dqn algorithm easily!
+With this library, you can solve [some sample tasks](https://github.com/shiba24/reinforcement_learning#usage-solve-sample-tasks) with either algorithm. Other tasks like some games are now in prep.
+
+You can also [define your own task](https://github.com/shiba24/reinforcement_learning#define-your-own-task) with little effort and solve it with q-learning or dqn algorithm easily.
 
 ## Requirements
 ### Q-learning
